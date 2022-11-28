@@ -34,7 +34,7 @@ vars:
     sales_channel_exclusion: 'dummy' # exclude orders that came from certain sales channels from analytics e.g. 'channel1|channel2'
 
 models:
-  bolt_dbt_shopify_package:
+  bolt_dbt_shopify_package_eu:
     base:
       +schema: shopify_base
       +materialized: table
