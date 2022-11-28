@@ -36,7 +36,7 @@ WITH giftcard_deduction AS
         shipping_price, 
         total_revenue,
         order_tags
-    FROM {{ ref('shopify_orders') }}
+    FROM {{ ref('shopify_eu_orders') }}
     LEFT JOIN giftcard_deduction USING(order_id)
     WHERE giftcard_only = 'false'
     AND cancelled_at IS NULL
