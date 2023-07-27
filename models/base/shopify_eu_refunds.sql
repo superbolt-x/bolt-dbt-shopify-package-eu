@@ -57,7 +57,7 @@ WITH
     WHERE date <= current_date),
     {%- endif -%}
 
-    {%- set exchange_rate = 1 if var('currency') != 'USD' else 'exchange_rate' %}
+    {%- set conversion_rate = 1 if var('currency') != 'USD' else 'conversion_rate' %}
 
     -- To tackle the signal loss between Fivetran and Shopify transformations
     stellar_signal AS 
@@ -153,12 +153,12 @@ WITH
         refund_id,
         refund_date,
         quantity_refund,
-        SUM(amount_discrepancy_refund)::float*{{ exchange_rate }}::float AS amount_discrepancy_refund,
-        tax_amount_discrepancy_refund::float*{{ exchange_rate }}::float,
-        SUM(amount_shipping_refund)::float*{{ exchange_rate }}::float AS amount_shipping_refund,
-        SUM(tax_amount_shipping_refund)::float*{{ exchange_rate }}::float AS tax_amount_shipping_refund,
-        subtotal_refund::float*{{ exchange_rate }}::float as subtotal_refund,
-        total_tax_refund::float*{{ exchange_rate }}::float as total_tax_refund
+        SUM(amount_discrepancy_refund)::float*{{ conversion_rate }}::float AS amount_discrepancy_refund,
+        tax_amount_discrepancy_refund::float*{{ conversion_rate }}::float,
+        SUM(amount_shipping_refund)::float*{{ conversion_rate }}::float AS amount_shipping_refund,
+        SUM(tax_amount_shipping_refund)::float*{{ conversion_rate }}::float AS tax_amount_shipping_refund,
+        subtotal_refund::float*{{ conversion_rate }}::float as subtotal_refund,
+        total_tax_refund::float*{{ conversion_rate }}::float as total_tax_refund
     FROM refund_adjustment_line_refund
     {%- if var('currency') == 'USD' %}
     LEFT JOIN currency ON refund_adjustment_line_refund.refund_date::date = currency.date
