@@ -154,11 +154,11 @@ WITH
         refund_date,
         quantity_refund,
         SUM(amount_discrepancy_refund)::float*{{ conversion_rate }}::float AS amount_discrepancy_refund,
-        tax_amount_discrepancy_refund::float*{{ conversion_rate }}::float,
+        tax_amount_discrepancy_refund::float*{{ conversion_rate }}::float AS tax_amount_discrepancy_refund,
         SUM(amount_shipping_refund)::float*{{ conversion_rate }}::float AS amount_shipping_refund,
         SUM(tax_amount_shipping_refund)::float*{{ conversion_rate }}::float AS tax_amount_shipping_refund,
-        subtotal_refund::float*{{ conversion_rate }}::float as subtotal_refund,
-        total_tax_refund::float*{{ conversion_rate }}::float as total_tax_refund
+        subtotal_refund::float*{{ conversion_rate }}::float AS subtotal_refund,
+        total_tax_refund::float*{{ conversion_rate }}::float AS total_tax_refund
     FROM refund_adjustment_line_refund
     {%- if var('currency') == 'USD' %}
     LEFT JOIN currency ON refund_adjustment_line_refund.refund_date::date = currency.date
