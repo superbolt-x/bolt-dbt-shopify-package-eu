@@ -29,7 +29,7 @@ WITH
     WHERE date <= current_date),
     {%- endif -%}
 
-    {%- set exchange_rate = 1 if var('currency') != 'USD' else 'exchange_rate' %}
+    {%- set conversion_rate = 1 if var('currency') != 'USD' else 'conversion_rate' %}
     
     raw_table AS 
     (SELECT 
@@ -45,8 +45,8 @@ WITH
     (SELECT 
         order_id, 
         created_at::date as transaction_date,
-        COALESCE(SUM(CASE WHEN kind in ('sale','authorization') THEN transaction_amount END),0)::float*{{ exchange_rate }}::float as paid_by_customer,
-        COALESCE(SUM(CASE WHEN kind = 'refund' THEN transaction_amount END),0)::float*{{ exchange_rate }}::float as refunded
+        COALESCE(SUM(CASE WHEN kind in ('sale','authorization') THEN transaction_amount END),0)::float*{{ conversion_rate }}::float as paid_by_customer,
+        COALESCE(SUM(CASE WHEN kind = 'refund' THEN transaction_amount END),0)::float*{{ conversion_rate }}::float as refunded
     FROM raw_table
     {%- if var('currency') == 'USD' %}
     LEFT JOIN currency ON raw_table.created_at::date = currency.date
