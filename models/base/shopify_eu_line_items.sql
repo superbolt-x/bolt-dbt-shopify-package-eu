@@ -55,7 +55,7 @@ WITH
     WHERE date <= current_date),
     {%- endif -%}
 
-    {%- set exchange_rate = 1 if var('currency') != 'USD' else 'exchange_rate' %}    
+    {%- set conversion_rate = 1 if var('currency') != 'USD' else 'conversion_rate' %}    
         
     order_line_raw_data AS 
     ({{ dbt_utils.union_relations(relations = order_line_raw_tables) }}),
@@ -130,7 +130,7 @@ WITH
 SELECT 
     {%- for field in order_fields -%}
         {%- if ('price' in field or 'refund' in field) %}
-        "{{ field }}"::float*{{ exchange_rate }}::float as "{{ field }}",
+        "{{ field }}"::float*{{ conversion_rate }}::float as "{{ field }}",
         {%- else %}
         "{{ field }}",
         {%- endif -%}
