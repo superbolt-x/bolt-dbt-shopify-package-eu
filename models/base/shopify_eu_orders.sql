@@ -124,7 +124,7 @@ WITH
     WHERE date <= current_date),
     {%- endif -%}
 
-    {%- set exchange_rate = 1 if var('currency') != 'USD' else 'exchange_rate' %}
+    {%- set conversion_rate = 1 if var('currency') != 'USD' else 'conversion_rate' %}
         
     -- To tackle the signal loss between Fivetran and Shopify transformations
     stellar_signal AS 
@@ -339,7 +339,7 @@ WITH
 SELECT 
     {%- for field in order_fields -%}
         {%- if ('price' in field or 'revenue' in field or 'discounts' in field or 'total' in field or 'refund' in field) %}
-        "{{ field }}"::float*{{ exchange_rate }}::float as "{{ field }}",
+        "{{ field }}"::float*{{ conversion_rate }}::float as "{{ field }}",
         {%- elif field == 'currency' %}
         'USD' as currency,
         {%- else %}
