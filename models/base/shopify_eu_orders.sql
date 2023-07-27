@@ -327,6 +327,7 @@ WITH
     "billing_address_zip",
     "discount_code",
     "shipping_title",
+    "shipping_price",
     "discounted_shipping_price",
     "shipping_discounts",
     "order_tags",
