@@ -121,7 +121,7 @@ WITH
     currency AS
     (SELECT date, conversion_rate
     FROM shop_raw_data LEFT JOIN utilities.currency USING (currency)
-    WHERE date <= current_date)
+    WHERE date <= current_date),
     {%- endif -%}
 
     {%- set exchange_rate = 1 if var('currency') != 'USD' else 'exchange_rate' %}
