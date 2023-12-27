@@ -23,6 +23,7 @@
     "customer_id",
     "email",
     "created_at",
+    "processed_at",
     "updated_at",
     "cancelled_at",
     "financial_status",
@@ -360,5 +361,5 @@ LEFT JOIN shipping USING(order_id)
 LEFT JOIN tags USING(order_id)
 LEFT JOIN refund USING(order_id)
 {%- if var('currency') == 'USD' %}
-    LEFT JOIN currency ON orders.created_at::date = currency.date
+    LEFT JOIN currency ON orders.order_date::date = currency.date
 {%- endif %}
