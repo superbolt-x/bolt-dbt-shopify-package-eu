@@ -6,6 +6,7 @@
 
 
 {%- set sales_channel_exclusion_list = "'"~var("sales_channel_exclusion").split('|')|join("','")~"'" -%}
+{%- set shipping_country_inclusion_list = "'"~var("shipping_countries_included").split('|')|join("','")~"'" -%}
 
 WITH giftcard_deduction AS 
     (SELECT 
@@ -45,6 +46,7 @@ WITH giftcard_deduction AS
     --AND cancelled_at IS NULL
     AND source_name NOT IN ({{ sales_channel_exclusion_list }})
     AND (order_tags !~* '{{ var("order_tags_keyword_exclusion")}}' OR order_tags IS NULL)
+    AND shipping_country IN ({{ shipping_country_inclusion_list }}) OR shipping_country = 'dummy'
 
     )
 
