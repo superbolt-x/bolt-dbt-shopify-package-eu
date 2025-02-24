@@ -2,6 +2,8 @@
     alias = target.database + '_shopify_eu_daily_refunds'
 )}}
 
+{%- set shipping_country_inclusion_list = "'"~var("shipping_countries_included").split('|')|join("','")~"'" -%}
+
 WITH
 
     giftcard_deduction AS 
@@ -31,6 +33,7 @@ WITH
         sum(total_tax_refund) + sum(tax_amount_discrepancy_refund) + sum(tax_amount_shipping_refund) as tax_refund
     FROM {{ ref('shopify_eu_refunds') }}
     LEFT JOIN giftcard_deduction USING(order_id)
+    WHERE (shipping_address_country IN ({{ shipping_country_inclusion_list }}) OR shipping_address_country = 'dummy')
     GROUP BY date, refund_id, order_id
     ),
 
