@@ -187,4 +187,4 @@ WITH
     {%- if var('sho_eu_currency') == 'USD' %}
     LEFT JOIN currency ON refund_adjustment_line_refund.refund_date::date = currency.date
     {%- endif %}
-    GROUP BY 1,2,3,4,6,9,10
+    GROUP BY 1,2,3,4,5,7,10,11
