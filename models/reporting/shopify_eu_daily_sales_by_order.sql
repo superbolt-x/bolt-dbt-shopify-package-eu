@@ -1,5 +1,5 @@
 {{ config (
-    alias = target.database + '_shopify_aus_daily_sales_by_order',
+    alias = target.database + '_shopify_eu_daily_sales_by_order',
     materialized='incremental',
     unique_key='unique_key',
     on_schema_change='append_new_columns'
@@ -7,7 +7,7 @@
 
 
 {%- set sales_channel_exclusion_list = "'"~var("sales_channel_exclusion").split('|')|join("','")~"'" -%}
-{%- set shipping_country_inclusion_list = "'"~var("shipping_countries_included").split('|')|join("','")~"'" -%}
+{%- set shipping_country_inclusion_list = "'"~var("shipping_countries_included_eu").split('|')|join("','")~"'" -%}
 
 WITH giftcard_deduction AS 
     (SELECT 
@@ -20,7 +20,7 @@ WITH giftcard_deduction AS
             SUM(quantity) as items_count,
             COALESCE(SUM(CASE WHEN gift_card is true THEN quantity END),0) as giftcard_count,
             COALESCE(SUM(CASE WHEN gift_card is true THEN price * quantity END),0) as giftcard_deduction
-        FROM {{ ref('shopify_aus_line_items') }}
+        FROM {{ ref('shopify_eu_line_items') }}
         GROUP BY 1)
     ),
 
@@ -59,13 +59,13 @@ WITH giftcard_deduction AS
         created_at,
         processed_at,
         customer_last_order_date
-    FROM {{ ref('shopify_aus_orders') }}
+    FROM {{ ref('shopify_eu_orders') }}
     LEFT JOIN giftcard_deduction USING(order_id)
     WHERE giftcard_only = 'false'
     --AND cancelled_at IS NULL
     AND source_name NOT IN ({{ sales_channel_exclusion_list }})
     AND (order_tags !~* '{{ var("order_tags_keyword_exclusion")}}' OR order_tags IS NULL)
-    {%- if var('shipping_countries_included') != 'dummy' %}
+    {%- if var('shipping_countries_included_eu') != 'dummy' %}
     AND shipping_address_country_code IN ({{ shipping_country_inclusion_list }})
     {%- endif %}
     )
