@@ -34,6 +34,7 @@
     "subtotal_price",
     "total_tax",
     "total_price",
+    "total_price_usd",
     "original_total_duties_set",
     "current_total_discounts",
     "current_subtotal_price",
@@ -292,6 +293,7 @@ WITH
     "subtotal_revenue",
     "total_tax",
     "total_revenue",
+    "total_revenue_usd",
     "current_total_discounts",
     "current_subtotal_price",
     "current_total_tax",
@@ -335,9 +337,11 @@ WITH
     "tax_refund"
 ] -%}
 
-SELECT 
+SELECT
     {%- for field in order_fields -%}
-        {%- if ('price' in field or 'revenue' in field or 'discounts' in field or 'total' in field or 'refund' in field) %}
+        {%- if field == 'total_revenue_usd' %}
+        "{{ field }}",
+        {%- elif ('price' in field or 'revenue' in field or 'discounts' in field or 'total' in field or 'refund' in field) %}
         "{{ field }}"::float/{{ conversion_rate }}::float as "{{ field }}",
         {%- elif field == 'currency' %}
         'USD' as currency,
