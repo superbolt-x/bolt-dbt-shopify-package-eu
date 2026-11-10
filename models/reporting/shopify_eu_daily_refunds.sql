@@ -2,7 +2,10 @@
     alias = target.database + '_shopify_eu_daily_refunds'
 )}}
 
-{%- set shipping_country_inclusion_list = "'"~var("shipping_countries_included_eu").split('|')|join("','")~"'" -%}
+{%- set sales_channel_exclusion_list = "'"~var("sales_channel_exclusion").split('|')|join("','")~"'" -%}
+{%- set sales_channel_inclusion_list = "'"~var("sales_channel_inclusion").split('|')|join("','")~"'" -%}
+{%- set shipping_country_exclusion_list = "'"~var("shipping_countries_excluded").split('|')|join("','")~"'" -%}
+{%- set shipping_country_inclusion_list = "'"~var("shipping_countries_included").split('|')|join("','")~"'" -%}
 
 WITH
 
@@ -33,15 +36,36 @@ WITH
         sum(total_tax_refund) + sum(tax_amount_discrepancy_refund) + sum(tax_amount_shipping_refund) as tax_refund
     FROM {{ ref('shopify_eu_refunds') }}
     LEFT JOIN giftcard_deduction USING(order_id)
-    {%- if var('shipping_countries_included_eu') != 'dummy' %}
+    {%- if var('shipping_countries_included') != 'dummy' %}
     WHERE shipping_address_country_code IN ({{ shipping_country_inclusion_list }})
     {%- endif %}
     GROUP BY date, refund_id, order_id
     ),
 
     order_customer AS 
-    (SELECT order_id, customer_id, cancelled_at
+    (SELECT order_id, customer_id, cancelled_at, customer_order_index
     FROM {{ ref('shopify_eu_orders') }}
+    WHERE 1=1
+    AND (order_tags !~* '{{ var("order_tags_keyword_exclusion")}}' OR order_tags IS NULL)
+    AND (email !~* '{{ var("email_address_exclusion")}}' OR email IS NULL)
+    {%- if var('financial_status') != 'dummy' %}
+    AND financial_status ~* '{{ var("financial_status")}}'
+    {%- endif %}
+    {%- if var('order_test') != 'dummy' %}
+    AND "test" !~* '{{ var("order_test")}}'
+    {%- endif %}
+    {%- if var('shipping_countries_excluded') != 'dummy' %}
+    AND (shipping_address_country_code NOT IN ({{ shipping_country_exclusion_list }}) OR shipping_address_country_code IS NULL)
+    {%- endif %}
+    {%- if var('shipping_countries_included') != 'dummy' %}
+    AND shipping_address_country_code IN ({{ shipping_country_inclusion_list }})
+    {%- endif %}
+    {%- if var('sales_channel_exclusion') != 'dummy' %}
+    AND (source_name NOT IN ({{ sales_channel_exclusion_list }}) OR source_name IS NULL)
+    {%- endif %}
+    {%- if var('sales_channel_inclusion') != 'dummy' %}
+    AND source_name IN ({{ sales_channel_inclusion_list }})
+    {%- endif %}
     )
 
 SELECT *,
